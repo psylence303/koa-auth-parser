@@ -24,7 +24,7 @@ const
 
     /**
      * Parse Digest authentication header
-     * Return credentials and valut with all parsed values
+     * Return credentials and vault with all parsed values
      * @param {string} digest
      * @returns {{username: string, password: string, vault: Object}}
      */
@@ -56,29 +56,48 @@ const
         'basic': basicAuthParser,
         'bearer': bearerAuthParser,
         'digest': digestAuthParser
-    };
+    },
 
-module.exports = function() {
+    /**
+     * Split the given auth string into scheme and digest
+     * @param {string} auth
+     * @returns {{scheme: string, digest: string}}
+     */
+    splitAuthHeader = (auth) => {
+        const pattern = /^\s*(\w+)\s+(.*)$/,
+            [, scheme, digest] = pattern.exec(auth) || [];
 
-    return (ctx, next) => {
-        if (ctx.header && ctx.header.authorization) {
-            const {authorization: auth} = ctx.header,
-                pattern = /^\s*(\w+)\s+(.*)$/,
-                [, scheme, digest] = pattern.exec(auth) || [];
+        return {scheme, digest};
+    },
 
-            if (scheme) {
-                const parser = PARSERS[scheme.toLowerCase()] || defaultParser,
-                    props = parser(digest);
+    /**
+     * Auth parsing middleware
+     * @param {{propName: string}} config
+     * @returns {func}
+     */
+    authParseMiddleware = (config) => {
+        const {propName = 'auth'} = config || {};
 
-                ctx.state.auth = {
-                    digest,
-                    scheme,
-                    ...props
-                };
+        return (ctx, next) => {
+            if (ctx.header && ctx.header.authorization) {
+                const {authorization: auth} = ctx.header,
+                    {scheme, digest} = splitAuthHeader(auth);
+
+                if (scheme) {
+                    const parser = PARSERS[scheme.toLowerCase()] || defaultParser,
+                        props = parser(digest);
+
+                    ctx.state[propName] = {
+                        digest,
+                        scheme,
+                        ...props
+                    };
+                }
             }
-        }
 
-        return next();
+            return next();
+        };
     };
 
-};
+const Module = module.exports = authParseMiddleware;
+Module.splitAuthHeader = splitAuthHeader;

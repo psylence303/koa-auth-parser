@@ -10,7 +10,7 @@ yarn add psylence303/koa-auth-parser
 
 ## Example
 
-  Using the middleware:
+Using the middleware:
 
 ```js
 import Koa from 'koa';
@@ -34,18 +34,51 @@ app.use(ctx => {
 app.listen(3000);
 ```
 
-  Example request:
+Sample request:
 
-    curl --location --request POST 'localhost:3000' --header 'Authorization: Basic c29tZV9hZG1pbjpwYXNzd29yZA=='
+```bash
+curl --location --request POST 'localhost:3000' --header 'Authorization: Basic c29tZV9hZG1pbjpwYXNzd29yZA=='
+```
 
-  Output of the ctx.state.auth:
+Output of the ctx.state.auth:
 
-    {
-      digest: 'c29tZV9hZG1pbjpwYXNzd29yZA==',
-      scheme: 'Basic',
-      username: 'some_admin',
-      password: 'password'
-    }
+```json5
+{
+  digest: 'c29tZV9hZG1pbjpwYXNzd29yZA==',
+  scheme: 'Basic',
+  username: 'some_admin',
+  password: 'password'
+}
+```
+
+## Configuration
+
+It is possible to provide the additional configuration. Currently, the following properties are supported:
+
+### propName
+
+Configures the nested property name inside `ctx.auth` to hold the parsing results:
+
+```js
+app.use(authParser({
+  propName: 'authentication'
+});
+```
+
+## Other API methods
+
+### splitAuthHeader(ctx)
+
+If, for some reason, you have to split the authorization header without using the full middleware you can import the corresponding method:
+
+```js
+import {splitAuthHeader} from 'koa-auth-parser';
+
+const result = splitAuthHeader('Basic c29tZV9hZG1pbjpwYXNzd29yZA==');
+
+assert.equal(result.scheme, 'Basic');
+assert.equal(result.digest, 'c29tZV9hZG1pbjpwYXNzd29yZA==');
+```
 
 ## Currently supported auth methods
 
