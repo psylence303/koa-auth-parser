@@ -1,6 +1,6 @@
 {
   "name": "koa-auth-parser",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Parsing auth headers and saving to Koa's context",
   "main": "index.js",
   "author": "Artem Levik",
