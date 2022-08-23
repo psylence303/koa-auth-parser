@@ -1,0 +1,12 @@
+{
+  "root": true,
+  "extends": ["standard"],
+  "overrides": [
+    {
+      "files": "*.js",
+      "rules": {
+        "one-var": 0
+      }
+    }
+  ]
+}
